@@ -1,0 +1,205 @@
+@font-face {
+  font-family: 'RobotoMono';
+  src: url(../assets/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Micro5';
+  src: url(../assets/fonts/Micro_5/Micro5-Regular.ttf) format('truetype');
+}
+
+:root {
+  --surface-primary-color: #eae2cf;
+  --surface-secondary-color: #704075;
+  --surface-border-color: #beab94;
+  --background-color: #d493bf;
+  
+  --outline-primary: #ffffff;
+
+  --text-primary-color: #5a1945;
+  --text-highlight-color: #ffffff;
+}
+
+body {
+  background-color: var(--background-color);
+  background-image: url('../assets/images/twttrbanner.png');
+	background-position: top;
+  font-size: 14px;
+  font-family: 'RobotoMono', sans-serif;
+  font-weight: normal;
+  margin: 0;
+}
+
+p {
+  color: var(--text-primary-color);
+  line-height: 1.4em; /*I find the default HTML line-height tends to be a bit claustrophobic for main text*/
+}
+
+li {
+  font-size: 14px;
+  color: var(--text-primary-color);
+  line-height: 1.4em; /*I find the default HTML line-height tends to be a bit claustrophobic for main text*/
+}
+
+hr {
+  border: solid var(--surface-border-color);
+  border-width: 2px 0 0 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.right {
+  float: right;
+  margin-left: 1em;
+}
+.left {
+  float: left;
+  margin-right: 1em;
+}
+.center {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+@media only screen and (min-width: 600px) {
+  .small {
+    max-width: 60%;
+    height: auto;
+  }
+}
+.caption {
+  margin-top: 0;
+  font-size: 0.9em;
+  font-style: italic;
+}
+
+/* a:hover { 
+  background-color: #fff6e6;
+} */
+
+h1 {
+  /* font-family: Tahoma, Geneva, sans-serif; */
+  font-family: 'Micro5', sans-serif;
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--surface-secondary-color);
+}
+
+h2, h3, h4, h5 {
+  font-family: 'Micro5', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--surface-secondary-color);
+}
+
+/*#CONTAINER is the rectangle that contains everything but the background!*/
+#container {
+  margin: 3em auto;
+  width: 90%;
+	max-width: 700px;
+  margin-top: 100px;
+	background-color: var(--surface-primary-color);
+  border-color: var(--surface-secondary-color);
+  border-style: solid;
+  border-width: 4px;
+  outline-color: var(--text-highlight-color);
+  outline-style: solid;
+  outline-width: 4px;
+}
+
+#content {
+  padding: 10px 5% 20px 5%;
+}
+
+#welcome {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+
+/*HEADER STYLE*/
+#header {
+  position: fixed;
+  width: 100%;
+  left: 0px;
+  top: 0px;
+  background-color: var(--surface-secondary-color);
+}
+
+#header-links {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 32px;
+}
+
+#site-links {
+  display: flex;
+  flex-direction: row;
+}
+
+#social-links {
+  img {
+    margin-left: 4px;
+    width:18px;
+    height:18px;
+    min-width: 18px;
+    min-height: 18px;
+  }
+}
+
+#header li {
+  font-size: 1em;
+  display: inline-block;
+  margin-right: 1.5em;
+  margin-bottom: 0.2em;
+  margin-top: 0.2em;
+}
+#header li a {
+  color: white;
+  text-decoration: none;
+  background-color: inherit;
+}
+#header li a:hover {
+  text-decoration: underline;
+}
+
+/*POST LIST STYLE*/
+#postlistdiv ul {
+  font-size: 1.2em;
+  padding: 0;
+  list-style-type: none;
+}
+#recentpostlistdiv ul {
+  font-size: 1.2em;
+  padding: 0;
+  list-style-type: none;
+}
+.moreposts {
+  font-size: 0.8em;
+  margin-top: 0.2em;
+}
+
+/*NEXT AND PREVIOUS LINKS STYLE*/
+#nextprev {
+  text-align: center;
+  margin-top: 1.4em;
+}
+
+/*DISQUS STYLE*/
+#disqus_thread {
+  margin-top: 1.6em;
+}
+
+/*FOOTER STYLE*/
+#footer {
+  font-size: 0.8em;
+  padding: 0 5% 10px 5%;
+}
