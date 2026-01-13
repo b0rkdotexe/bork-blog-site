@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Post</title> <!-- If you leave title as "Blog Post", it will automatically be updated to the post title -->
+    <link rel="icon" href="../../assets/images/icons/bork_favicon.png" type="image/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"> 
+    <link href="../../style/style.css" rel="stylesheet" type="text/css" media="all">    
+  </head>
+  <body>
+    <div id="container">
+    <div id="header">...</div>
+    <div id="content">
+      <h1 id="postTitleH1"></h1>
+      <h4 id="postDate"></h4>
+      
+        <p>Hello hello. This is my first progress post following some major changes to Watt Stop, my submission to Bigmode Game Jam 2025. If you haven’t played the game yet, let me give you a synopsis. You are playing as a blob — I don‘t have a player model yet haha — and you are tasked with running the pitstop for a nascar/F1 style race where cars, referred to as ”racers”, pull in for a charge. The objective of the game is to charge as many racers as possible before the queue gets too backed up, all while managing the temperature of the generator. I made it in Unity and I did all the pixel art myself.</p>
+        <p>Ok let’s get to it. The point of this post is to illustrate some important architecture considerations as the game leaves its demo/proof-of-concept phase and transitions into a proper alpha build. At this point in Watt Stop’s development, it is mostly free of game breaking bugs, you can start the game, play it, lose, then restart. For all intents and purposes, it is a game, just not a very fleshed out or fun one yet, and it is held together with a lot of metaphorical duct tape. Let’s take a look at it’s current state.</p>
+        <p>Here’s a little gameplay:</p>
+
+        <div id="video-div">
+            <video width="100%" loop autoplay muted>
+                <source src="https://github.com/b0rkdotexe/bork_website_assets/raw/refs/heads/main/wattstop_v1_demo_clip.mp4" type="video/mp4">
+                Your browser does not support the video tag
+            </video>
+        </div>
+
+        <p>Looks fun, right? You may or may not notice the shortcomings of this system from this 15 second video alone, but those of you with eagle eyes have likely already detected the uncomfortable amount of wait time in between your actions that push the game along. You push one button, then wait for a sec, then push another button, then you wait again. You may also have noticed the gameplay loop is quite <em>boring</em>. Timing can always be tweaked and balanced to reduce waiting around for stuff to happen but ultimately, the waiting and the bareness of the game are symptomatic of two things:</p>
+        
+        <ol>
+            <li>I’m still working on the fun stuff! Cut me some slack</li>
+            <li>Half-baked architecture &lt;- this is the real culprit</li>
+        </ol>
+
+        <img src="https://github.com/b0rkdotexe/bork_website_assets/blob/main/wattstop_arch_v1.png?raw=true">
+
+        <p>Above is a diagram to show the original structure of the game. Inspired by my previous work as a software developer I wanted to adhere to the <a href="https://en.wikipedia.org/wiki/SOLID"><strong>SOLID</strong> principles</a>, mostly focusing on the <strong>S</strong>ingle Responsibility and <strong>D</strong>ependency Inversion parts. The <code>GeneratorController</code> should only handle and depend on itself to carry out its responsibilities. Same for the <code>ChargingBayController</code> and the many instances of the <code>RacerController</code>. Throw in a few event emissions and a few state variables and everything works great! Well… Only kinda great.</p>
+        <p>The cracks were starting to show once everything came together.</p>
+
+        <div id="video-div">
+            <video width="50%" loop autoplay muted>
+                <source src="https://github.com/b0rkdotexe/bork_website_assets/raw/refs/heads/main/controllers_fighting_bug.mp4" type="video/mp4">
+                Your browser does not support the video tag
+            </video>
+        </div>
+
+        <p>Ladies and gentlemen, what you are seeing here is…a bug. <em>Gasp</em>.<br>
+        Yes, I know it’s horrible but after many hours of debugging I came to realize this is the result of a lack of communication between my controllers. The <code>ChargingBayController</code> has no idea what the occupying <code>RacerController</code> is doing, while both are trying to react to event emissions from the <code>GeneratorController</code> with no way to confirm with each other how to handle them. It was at this junction, this bug, this realization, I was left with no other option…</p>
+        <p><strong>Add an arbitrary 2 second timer between the conflicting events.</strong></p>
+        <p>…</p>
+        <p>Haha, you thought I was serious. Well I kinda was. Look, it was a band-aid solution so I could call it done. Moving on.</p>
+        <p>In an effort to keep everything as light as possible and get it done as quick as possible, I stopped a little too short of making a fully realized and robust event system. I originally started using events just to keep all my animations in sync, in my crunch induced panic to get the game over the finish line, I didn’t realize this was also the key to keeping my controllers in sync as well.</p>
+        <p>With that in mind, the new architecture has not changed much, but the implementation is much better thought out and executed.</p>
+        
+        <img src="https://github.com/b0rkdotexe/bork_website_assets/blob/main/wattstop_arch_v2.png?raw=true">
+
+        <p>As stated before, the specific improvement that was made was really to just lean more into the Observer Pattern which I had already started on. I achieved this with a new and improved <code>EventRegister</code>, who is taking the place of the old <code>EventController</code>, and a more comprehensive set of needed state variables. The original <code>EventController</code> was my first pass at making a centralized event handler. There weren’t any considerations for event types or returned data so the events themselves were only distinguishable by the function name and they basically all did the same thing, as far as the other controllers were concerned, to say “Hey! something happened”.</p>
+        <p>So the first course of action was to rename it to <code>EventRegister</code>. The names of these classes are not really important but the “[Insert name]Controller” naming convention was a bit of a misnomer since the system is not really meant to “control” anything. The new name is more appropriate as it really is just a dictionary of events with functions to subscribe/unsubscribe and emit. Name change aside, I took the existing event system, refactored it, turned it into one that is strongly typed with more explicit usage, and give it the ability to serve data. Also! I extended this system to trigger events just off of state variables being updated which adds even more granular control and accessibility. The benefit of all this is that now, every controller and manager can subscribe to explicit events with predictable payloads and globally accessible state variables while maintaining <strong>SOLID</strong> principles. This comes with a bunch of benefits moving forward:</p>
+        <ul>
+            <li>Syncing animations is easier</li>
+            <li>There’s no longer a need to insert arbitrary timers or delays to handle logic race conditions</li>
+            <li>Gameplay improvements are now much easier to iterate on</li>
+            <li>The codebase is cleaner and easier to follow</li>
+        </ul>
+
+        <p>On the gameplay improvements, I basically got one for free, just a couple extra lines of code and now the player can charge 2 racers <em>at the same time</em>.</p>
+        
+        <video loop autoplay muted>
+            <source src="https://github.com/b0rkdotexe/bork_website_assets/raw/refs/heads/main/wattstop_v2_demo_clip.mp4" type="video/mp4">
+            Your browser does not support the video tag
+        </video>
+
+        <p>And that is all for now! With these new changes, I have effectively addressed lingering technical debt and unfinished systems - taken out the scaffolding, if you will <em>wink wink</em> - which gives me a solid foundation to expand the scope of the game and add more complexity in the future. Still not very fun yet BUT I do have some fun stuff coming down the pipeline which includes new gameplay mechanics and updated pixel art. In future posts I will probably try to keep it a bit shorter and maybe include some code snippets.</p>
+        <p>Cheers!</p>
+      
+      
+    <div id="nextprev"></div>
+    </div> <!-- end of div id="content" -->
+    <div id="footer"></div>
+    </div> <!-- end of div id="container" -->
+  <!-- Here's the link to our JavaScript! -->
+  <script src="../../script.js"></script>
+  </body>
+</html>
