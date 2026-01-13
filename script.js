@@ -30,7 +30,9 @@ let authorLink = "borkdotexe.com"; // Enter your website, social media, etc. Som
 /*UPDATE: as of version 1.3, you may omit the date if you would like. But if you
   use a date it must still follow that format.*/
 
-let gameDevPostsArray = [];
+let gameDevPostsArray = [
+  "posts/gamedev/2026-01-13_Taking-Out-the-Scaffolding.html",
+];
 
 let techArtPostsArray = [];
 
@@ -56,7 +58,7 @@ let postsArray = [...techArtPostsArray, ...gameDevPostsArray].sort((newer, older
 let url = window.location.pathname;
 
 //The date format to look for is 4 digits, hyphen, 2 digits, hyphen, 2 digits, hyphen.
-const postDateFormat = /\d{4}\-\d{2}\-\d{2}\-/;
+const postDateFormat = /\d{4}\-\d{2}\-\d{2}/;
 
 //Check if you are in posts (if so, the links will have to go up a directory)
 let relativePath = ".";
@@ -76,7 +78,7 @@ let headerHTML = '<div id="header-links"> \
           <a href="https://www.instagram.com/b0rk.exe/"><img src="' + relativePath + '/assets/images/icons/instagram.png"></a> \
           <a href="https://x.com/b0rkdotexe"><img src="' + relativePath + '/assets/images/icons/twitter.png"></a> \
           <a href="https://bsky.app/profile/b0rkdotexe.bsky.social"><img src="' + relativePath + '/assets/images/icons/bluesky.png"></a> \
-          <a href="https://www.inprnt.com/gallery/b0rkdotexe/"><img src="' + relativePath + '/assets/images/icons/inprnt.png" style="width: fit-content;"></a> \
+          <a href="https://borkdotexe.itch.io/"><img src="' + relativePath + '/assets/images/icons/itchio.png" style="width: fit-content;"></a> \
         </div> \
       </div>'
 
@@ -87,32 +89,22 @@ let footerHTML = "<hr><p>" + blogName + " is written by " + authorName + " and b
 //To do the following stuff, we want to know where we are in the posts array (if we're currently on a post page).
 let currentIndex = -1;
 let currentFilename = url.substring(url.lastIndexOf('posts/'));
+
 //Depending on the web server settings (Or something?), the browser url may or may not have ".html" at the end. If not, we must add it back in to match the posts array. (12-19-2022 fix)
 if ( ! currentFilename.endsWith(".html") ) {
     currentFilename += ".html";
 }
 let i;
 for (i = 0; i < postsArray.length; i++) {
-  if ( postsArray[i][0] === currentFilename ) {
+  if ( postsArray[i] === currentFilename ) {
     currentIndex = i;
   }
 }
 
-//Convert the post url to readable post name. E.g. changes "2020-10-10-My-First-Post.html" to "My First Post"
-//Or pass along the "special characters" version of the title if one exists
 function formatPostTitle(i) {
-  // Check if there is an alternate post title
-  if ( postsArray[i].length > 1 ) {
-    //Remember how we had to use encodeURI for special characters up above? Now we use decodeURI to get them back.
-    return decodeURI(postsArray[i][1]);
-  } else { 
-  //If there is no alternate post title, check if the post uses the date format or not, and return the proper title
-	if (  postDateFormat.test ( postsArray[i][0].slice( 6,17 ) ) ) {
-	  return postsArray[i][0].slice(17,-5).replace(/-/g," ");
-    } else {
-      return postsArray[i][0].slice(6,-5).replace(/-/g," ");
-    }
-  }
+  let post = postsArray[i]
+  let postTitle = post.split("_")[1].split(".")[0].replaceAll("-", " ");
+  return postTitle;
 }
 
 //Get the current post title and date (if we are on a post page)
@@ -120,9 +112,12 @@ let currentPostTitle = "";
 let niceDate = "";
 if ( currentIndex > -1 ) {
   currentPostTitle = formatPostTitle( currentIndex );
+
+  console.log(postsArray[currentIndex].split("_")[0].split("/").at(-1))
+  let uglyDate = postsArray[currentIndex].split("_")[0].split("/").at(-1);
   //Generate the "nice to read" version of date
-  if (  postDateFormat.test ( postsArray[currentIndex][0].slice( 6,17 ) ) ) {
-    let monthSlice = postsArray[currentIndex][0].slice( 11,13 );
+  if ( postDateFormat.test ( uglyDate ) ) {
+    let monthSlice = uglyDate.slice( 5,7 );
     let month = "";
     if ( monthSlice === "01") { month = "Jan";}
     else if ( monthSlice === "02") { month = "Feb";}
@@ -136,7 +131,7 @@ if ( currentIndex > -1 ) {
     else if ( monthSlice === "10") { month = "Oct";}
     else if ( monthSlice === "11") { month = "Nov";}
     else if ( monthSlice === "12") { month = "Dec";}
-	niceDate = postsArray[currentIndex][0].slice( 14,16 ) + " " + month + ", " + postsArray[currentIndex][0].slice( 6,10 );
+	niceDate = month + " " + uglyDate.slice(8) + ", " + uglyDate.slice(0,4);
   }
 }
 

@@ -30,6 +30,11 @@ body {
   margin: 0;
 }
 
+#video-div {
+  display: flex;
+  justify-content: center;
+}
+
 p {
   color: var(--text-primary-color);
   line-height: 1.4em; /*I find the default HTML line-height tends to be a bit claustrophobic for main text*/
