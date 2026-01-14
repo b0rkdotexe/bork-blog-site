@@ -112,8 +112,7 @@ let currentPostTitle = "";
 let niceDate = "";
 if ( currentIndex > -1 ) {
   currentPostTitle = formatPostTitle( currentIndex );
-
-  console.log(postsArray[currentIndex].split("_")[0].split("/").at(-1))
+  
   let uglyDate = postsArray[currentIndex].split("_")[0].split("/").at(-1);
   //Generate the "nice to read" version of date
   if ( postDateFormat.test ( uglyDate ) ) {
